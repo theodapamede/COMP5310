@@ -1,3 +1,5 @@
+https://comp5310.eastus.cloudapp.azure.com:8000/hub/login
+
 #EXERCISE 1: READING AND ACCESSING DATA
 
 #Read the survey response data
@@ -122,6 +124,7 @@ for column_key in [BACKGROUND_YEARS_PROFESSIONAL, BACKGROUND_YEARS_PROGRAMMING]:
     print("* IQR: {}".format(iqr))
     
 #Binning and histograms
+np.seterr(divide='ignore', invalid='ignore')
 v = [row[BACKGROUND_YEARS_PROFESSIONAL] for row in data] # grab values
 freqs, bins = np.histogram(v, bins=7, range=(0,35)) # calculate frequencies and bin start/end
 for i, freq in enumerate(freqs):
@@ -137,4 +140,43 @@ for i, freq in enumerate(freqs):
     bin_str = '[{}..{}]'.format(int(bins[i]), int(bins[i+1]))
     print(bin_str, ':', freq)
     
- 
+#EXERCISE: VISUALISATION WITH MATPLLOTLIB
+
+#Making a frequency polygon
+
+%matplotlib inline
+import matplotlib.pyplot as plt
+x_values = range(len(data))
+professional_experience = [row[BACKGROUND_YEARS_PROFESSIONAL] for row in data]
+plt.plot(x_values, professional_experience, 'g-', label='Professional')
+
+#TODO: Add programming experience to the plot
+%matplotlib inline
+import matplotlib.pyplot as plt
+x_values = range(len(data))
+professional_experience = [row[BACKGROUND_YEARS_PROFESSIONAL] for row in data]
+plt.plot(x_values, professional_experience, 'g-',  label='Professional')
+professional_experience = [row[BACKGROUND_YEARS_PROGRAMMING] for row in data]
+plt.plot(x_values, professional_experience, 'b-',  label='Programming')
+plt.title('Experience')
+plt.ylabel('Number of responses')
+plt.legend(loc=2)
+plt.show()
+
+#Making a bar chart
+from collections import OrderedDict
+IMPORT_KEYS = ['1', '2', '3', '4', '5']
+def make_importance_plot(data, column_key, title):
+    c = Counter(row[column_key] for row in data)
+    d = OrderedDict([(k,c[k]) if k in c else (k,0) for k in IMPORT_KEYS])
+    # bars are by default width 0.8, so we'll add 0.1 to the left coordinates
+    xs = [i+0.1 for i,_ in enumerate(IMPORT_KEYS)]
+    plt.bar(xs, d.values())
+    plt.ylabel('Number of responses')
+    plt.axis([0,5,0,35])
+    plt.title(title)
+    plt.xticks([i + 0.5 for i, _ in enumerate(IMPORT_KEYS)], IMPORT_KEYS)
+    plt.show()
+for a in IMPORT_AREAS:
+    title = 'Importance of {}'.format(a.lower())
+    make_importance_plot(data, a, title)
